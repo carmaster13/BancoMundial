@@ -1,0 +1,36 @@
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#E8F1FA','primaryBorderColor':'#002244','primaryTextColor':'#002244','lineColor':'#009FDA','fontFamily':'Arial'}}}%%
+erDiagram
+    DimPais ||--o{ FactIndicadoresPais : "CodigoPais (1 a muchos)"
+    DimPeriodo ||--o{ FactIndicadoresPais : "Anio (1 a muchos)"
+    DimPais {
+        TEXT CodigoPais PK "ISO3"
+        TEXT Pais "Español"
+        TEXT Country "Inglés corregido"
+        TEXT Nombre_BancoMundial
+        TEXT Continente
+        TEXT Continent
+        TEXT RegionBM
+        TEXT GrupoIngresoBM
+    }
+    DimPeriodo {
+        INTEGER Anio PK "2025"
+        TEXT Descripcion
+    }
+    FactIndicadoresPais {
+        TEXT CodigoPais PK,FK
+        INTEGER Anio PK,FK
+        INTEGER Poblacion
+        REAL EsperanzaVida
+        REAL MortalidadInfantil "por 1.000"
+        REAL PIBPerCapita "USD"
+        REAL GastoSaludPerCapita "USD"
+        REAL MatriculaSecundaria "% bruta"
+        REAL AguaPotable "%"
+        INTEGER Anio_x4 "año de cada dato BM"
+        TEXT TamanoPais "F3"
+        REAL GastoSaludPctPIB "F3"
+        TEXT NivelEsperanzaVida "F3"
+        REAL BrechaEV_vsMundo "F3"
+        REAL IndicePrioridad "F3"
+        TEXT PrioridadFinanciamiento "F3"
+    }

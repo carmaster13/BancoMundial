@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brechas Globales de Salud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!--__PLOTLY__-->
+<style>
+:root{
+  color-scheme: light;
+  --azul: #002244;          /* azul institucional */
+  --azul-2: #00538A;
+  --celeste: #009FDA;       /* acento */
+  --blanco: #FFFFFF;
+  --gris: #F2F4F7;          /* gris claro de fondo */
+  --gris-2: #E3E7ED;
+  --borde: #D5DBE3;
+  --texto: #1B2733;
+  --texto-2: #4A5866;
+  --texto-3: #6B7785;
+  --alerta: #B42318;
+  --ok: #067647;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--gris);color:var(--texto);font-family:"Open Sans",Arial,sans-serif;font-size:15px;line-height:1.45}
+a{color:var(--azul-2)}
+/* ---------- Encabezado tipo portal ---------- */
+.franja{background:var(--azul);color:#fff;font-size:12px;padding:6px 24px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.franja span{opacity:.85}
+header.portal{background:#fff;border-bottom:1px solid var(--borde)}
+.portal-in{max-width:1400px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--azul)}
+.marca svg{width:44px;height:44px;flex:none}
+.marca b{display:block;font-size:20px;font-weight:800;letter-spacing:.2px;line-height:1.1}
+.marca small{display:block;font-size:12px;color:var(--texto-3);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+nav.menu{display:flex;gap:22px;margin-left:auto;font-weight:600;font-size:14px;flex-wrap:wrap}
+nav.menu a{text-decoration:none;color:var(--texto-2);padding:6px 0;border-bottom:3px solid transparent}
+nav.menu a.activo{color:var(--azul);border-color:var(--celeste)}
+/* ---------- Hero ---------- */
+.hero{background:linear-gradient(120deg,var(--azul) 0%,var(--azul-2) 70%,#0071B7 100%);color:#fff}
+.hero-in{max-width:1400px;margin:0 auto;padding:26px 24px 30px}
+.miga{font-size:12px;opacity:.8;margin-bottom:8px}
+.hero h1{margin:0 0 8px;font-size:30px;font-weight:800;letter-spacing:-.2px}
+.hero p{margin:0;max-width:980px;opacity:.95}
+.pregunta{margin-top:14px;background:rgba(255,255,255,.1);border-left:4px solid var(--celeste);padding:10px 14px;border-radius:4px;max-width:1100px;font-size:14px}
+.pregunta b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.8px;opacity:.85;margin-bottom:2px}
+/* ---------- Filtros ---------- */
+.filtros{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--borde);box-shadow:0 2px 6px rgba(0,34,68,.06)}
+.filtros-in{max-width:1400px;margin:0 auto;padding:10px 24px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.filtros label{font-size:12px;font-weight:700;color:var(--texto-2);text-transform:uppercase;letter-spacing:.5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--borde);background:#fff;color:var(--texto);border-radius:999px;padding:6px 12px;font:600 13px "Open Sans",sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--celeste)}
+.chip[aria-pressed="true"]{background:var(--azul);color:#fff;border-color:var(--azul)}
+.chip i{width:10px;height:10px;border-radius:2px;display:inline-block}
+select{border:1px solid var(--borde);border-radius:6px;padding:6px 8px;font:600 13px "Open Sans",sans-serif;color:var(--texto);background:#fff}
+.btn{border:1px solid var(--azul);background:#fff;color:var(--azul);border-radius:6px;padding:6px 12px;font:700 13px "Open Sans",sans-serif;cursor:pointer}
+.btn:hover{background:var(--azul);color:#fff}
+.estado{font-size:13px;color:var(--texto-2);margin-left:auto}
+.estado b{color:var(--azul)}
+/* ---------- Contenido ---------- */
+main{max-width:1400px;margin:0 auto;padding:20px 24px 40px}
+.seccion-t{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px}
+.seccion-t h2{margin:0;font-size:18px;color:var(--azul);font-weight:800}
+.seccion-t span{font-size:13px;color:var(--texto-3)}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:12px 14px;border-top:4px solid var(--azul);min-width:0}
+.kpi.salud{border-top-color:var(--celeste)}
+.kpi.riesgo{border-top-color:#C4320A}
+.kpi .n{font-size:11px;font-weight:700;color:var(--texto-3);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .v{font-size:24px;font-weight:800;color:var(--azul);margin:2px 0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi .s{font-size:12px;color:var(--texto-2)}
+.kpi .s .up{color:var(--ok);font-weight:700}.kpi .s .down{color:var(--alerta);font-weight:700}
+.grid{display:grid;gap:14px}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-map{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.card{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:14px 16px 10px;min-width:0}
+.card h3{margin:0;font-size:15px;color:var(--texto);font-weight:700}
+.card .q{font-size:11px;font-weight:800;color:var(--celeste);letter-spacing:.6px;text-transform:uppercase}
+.card .sub{font-size:13px;color:var(--texto-2);margin:2px 0 6px}
+.card .graf{width:100%;height:330px}
+.card .graf.alto{height:430px}
+.card .nota{font-size:12px;color:var(--texto-3);margin:4px 0 2px}
+.insight{background:var(--gris);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--texto);margin-top:6px}
+.insight b{color:var(--azul)}
+.leyenda{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--texto-2);margin:2px 0 4px}
+.leyenda span{display:inline-flex;align-items:center;gap:5px}
+.leyenda svg{width:12px;height:12px}
+.cabecera-card{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--texto-3);border-bottom:2px solid var(--gris-2);padding:6px 8px;white-space:nowrap}
+td{border-bottom:1px solid var(--gris-2);padding:6px 8px;font-variant-numeric:tabular-nums}
+td.num,th.num{text-align:right}
+tr.sel td{background:#E6F5FB}
+.tabla-scroll{max-height:360px;overflow:auto}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.pill.Alta{background:#FEE4E2;color:#912018}.pill.Media{background:#FEF0C7;color:#93370D}.pill.Baja{background:#DCFAE6;color:#085D3A}
+.regla{font-size:13px}
+.regla .flecha{color:var(--celeste);font-weight:800;padding:0 4px}
+.barra-lift{height:6px;background:var(--celeste);border-radius:3px}
+footer{background:var(--azul);color:#fff;font-size:12px}
+footer .in{max-width:1400px;margin:0 auto;padding:18px 24px;display:grid;grid-template-columns:2fr 1fr;gap:20px}
+footer p{margin:4px 0;opacity:.9}
+.aviso{font-weight:700;opacity:1}
+@media (max-width:1150px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.g-3{grid-template-columns:1fr}.g-map{grid-template-columns:1fr}}
+@media (max-width:760px){.filtros{position:static}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.g-2{grid-template-columns:1fr}nav.menu{display:none}.hero h1{font-size:23px}
+  .portal-in,.hero-in,.filtros-in,main,footer .in{padding-left:16px;padding-right:16px}footer .in{grid-template-columns:1fr}.estado{margin-left:0}}
+</style>
+</head>
+<body>
+
+<div class="franja"><span>Prototipo académico de alta fidelidad · Taller 02 · Especialización en Analítica de Datos para los Negocios</span><span>No es un sitio oficial del Banco Mundial</span></div>
+
+<header class="portal">
+  <div class="portal-in">
+    <a class="marca" href="#" aria-label="Inicio">
+      <!-- Iconografía genérica (globo). Reemplazar por el logotipo oficial si el docente lo exige. -->
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="#002244" stroke-width="3"/><ellipse cx="24" cy="24" rx="9" ry="21" fill="none" stroke="#009FDA" stroke-width="2.5"/><path d="M4 18h40M4 30h40" stroke="#009FDA" stroke-width="2.5"/><path d="M24 3v42" stroke="#002244" stroke-width="2"/></svg>
+      <span><b>Banco Mundial · Datos</b><small>Salud y demografía global</small></span>
+    </a>
+    <nav class="menu" aria-label="Secciones">
+      <a href="#resumen" class="activo">Resumen</a><a href="#mapa">Mapa</a><a href="#preguntas">Preguntas clave</a><a href="#factores">Factores</a><a href="#metodo">Metodología</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <div class="miga">Datos › Indicadores › Salud y demografía</div>
+    <h1>Brechas globales de salud y longevidad</h1>
+    <p>Tablero ejecutivo para la junta directiva: dónde se concentran las brechas de esperanza de vida y salud infantil, y qué factores se asocian a ellas para priorizar el financiamiento internacional.</p>
+    <div class="pregunta"><b>Pregunta clave</b>¿En qué continentes y países se concentran las mayores brechas de longevidad y salud infantil, y qué factores (tamaño de población, ingreso, inversión en salud, educación y agua potable) se asocian a ellas más allá del nivel de ingreso, para priorizar dónde invertir el financiamiento internacional?</div>
+  </div>
+</section>
+
+<div class="filtros" role="region" aria-label="Filtros">
+  <div class="filtros-in">
+    <label>Continente</label>
+    <div class="chips" id="chipsCont"></div>
+    <label for="selTam">Tamaño</label>
+    <select id="selTam"><option value="">Todos</option><option>Pequeño</option><option>Mediano</option><option>Grande</option></select>
+    <label for="selIng">Ingreso</label>
+    <select id="selIng"><option value="">Todos</option></select>
+    <button class="btn" id="btnReset" type="button">Limpiar filtros</button>
+    <div class="estado" id="estado"></div>
+  </div>
+</div>
+
+<main>
+  <div class="seccion-t" id="resumen"><h2>Indicadores clave</h2><span>Se recalculan con cada filtro · promedios ponderados por población</span></div>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="seccion-t" id="mapa"><h2>Mapa de brechas</h2><span>Haz clic en un país para ver su ficha; usa los filtros para pivotear todo el tablero</span></div>
+  <div class="grid g-map">
+    <div class="card">
+      <div class="cabecera-card">
+        <div><h3 id="tMapa">Índice de prioridad de financiamiento</h3><div class="sub" id="sMapa"></div></div>
+        <select id="selMapa" aria-label="Indicador del mapa">
+          <option value="IndicePrioridad">Índice de prioridad (0-100)</option>
+          <option value="EsperanzaVida">Esperanza de vida</option>
+          <option value="MortalidadInfantil">Mortalidad infantil</option>
+          <option value="PIBPerCapita">PIB per cápita</option>
+          <option value="GastoSaludPerCapita">Gasto en salud per cápita</option>
+          <option value="AguaPotable">Agua potable segura</option>
+          <option value="MatriculaSecundaria">Matrícula secundaria</option>
+        </select>
+      </div>
+      <div class="graf alto" id="gMapa"></div>
+    </div>
+    <div class="card">
+      <h3>Dónde invertir primero</h3>
+      <div class="sub">Top 12 del índice de prioridad en la selección actual</div>
+      <div class="tabla-scroll"><table id="tPrioridad"></table></div>
+      <div class="insight" id="fichaPais">Selecciona un país en el mapa o en las tablas para ver su ficha.</div>
+    </div>
+  </div>
+
+  <div class="seccion-t" id="preguntas"><h2>Preguntas de la junta directiva</h2><span>P1 a P3: distribución, polos opuestos y tamaño demográfico</span></div>
+  <div class="grid g-3">
+    <div class="card">
+      <div class="q">P1 · Distribución</div>
+      <h3>¿Cómo se distribuyen la población y los países?</h3>
+      <div class="sub">Participación de cada continente en la población mundial y en el número de países. Clic en una barra para filtrar.</div>
+      <div class="graf" id="gP1"></div>
+      <div class="insight" id="iP1"></div>
+    </div>
+    <div class="card">
+      <div class="q">P2 · Polos opuestos</div>
+      <h3>Los 5 con mayor y menor esperanza de vida</h3>
+      <div class="sub">Años por encima o por debajo de la media mundial ponderada (<span id="mediaMundial"></span> años)</div>
+      <div class="graf" id="gP2"></div>
+      <div class="insight" id="iP2"></div>
+    </div>
+    <div class="card">
+      <div class="q">P3 · Tamaño demográfico</div>
+      <h3>¿Los países más poblados tienen mejor salud?</h3>
+      <div class="sub">Mediana por segmento: Pequeño &lt; 5 M · Mediano 5-50 M · Grande ≥ 50 M habitantes</div>
+      <div class="graf" id="gP3"></div>
+      <div class="insight" id="iP3"></div>
+    </div>
+  </div>
+
+  <div class="seccion-t" id="factores"><h2>Factores asociados</h2><span>P4 a P6 · tamaño de burbuja = población · la correlación se recalcula con la selección</span></div>
+  <div class="leyenda" id="leyendaCont"></div>
+  <div class="grid g-3">
+    <div class="card">
+      <div class="q">P4 · Ingreso</div>
+      <h3>¿Más PIB per cápita, más esperanza de vida?</h3>
+      <div class="sub" id="sP4"></div>
+      <div class="graf" id="gP4"></div>
+      <div class="insight" id="iP4"></div>
+    </div>
+    <div class="card">
+      <div class="q">P5 · Inversión en salud</div>
+      <h3>¿Más gasto en salud, menos mortalidad infantil?</h3>
+      <div class="sub" id="sP5"></div>
+      <div class="graf" id="gP5"></div>
+      <div class="insight" id="iP5"></div>
+    </div>
+    <div class="card">
+      <div class="q">P6 · Educación y agua</div>
+      <h3>Agua potable, educación y esperanza de vida</h3>
+      <div class="sub" id="sP6"></div>
+      <div class="graf" id="gP6"></div>
+      <div class="insight" id="iP6"></div>
+    </div>
+  </div>
+
+  <div class="grid g-2" style="margin-top:14px">
+    <div class="card">
+      <h3>Correlaciones entre indicadores</h3>
+      <div class="sub">Spearman para la selección actual (−1 relación inversa perfecta · +1 directa perfecta)</div>
+      <div class="graf alto" id="gCorr"></div>
+    </div>
+    <div class="card">
+      <h3>Reglas de asociación</h3>
+      <div class="sub">Combinaciones de condiciones que anticipan la salud de un país (Apriori sobre los 216 países)</div>
+      <div class="tabla-scroll" style="max-height:430px"><table id="tReglas"></table></div>
+      <div class="nota">Confianza = % de países con el antecedente que cumplen el consecuente. Lift = cuántas veces más frecuente que por azar.</div>
+    </div>
+  </div>
+
+  <div class="seccion-t" id="metodo"><h2>Datos de la selección</h2><span>Vista de tabla accesible · ordenada por índice de prioridad</span></div>
+  <div class="card"><div class="tabla-scroll" style="max-height:420px"><table id="tDatos"></table></div></div>
+</main>
+
+<footer>
+  <div class="in">
+    <div>
+      <p><b>Fuentes:</b> archivos del curso (población, esperanza de vida, mortalidad infantil por 1.000 nacidos vivos; año no registrado) y World Development Indicators del Banco Mundial (PIB per cápita, gasto en salud per cápita, matrícula secundaria bruta, agua potable gestionada de forma segura), último dato disponible desde 2015.</p>
+      <p><b>Modelo:</b> estrella en SQLite (DimPais, DimPeriodo, FactIndicadoresPais) · nombres homologados por código ISO3 · <span id="fechaCorte"></span></p>
+      <p><b>Lectura:</b> las correlaciones y reglas muestran asociación, no causalidad. Valores faltantes no se imputan.</p>
+    </div>
+    <div>
+      <p class="aviso">Prototipo académico. No es un sitio ni una publicación oficial del Banco Mundial.</p>
+      <p>Taller 02 · Business Intelligence · Fundación Universitaria Comfamiliar</p>
+    </div>
+  </div>
+</footer>
+
+<script id="datos" type="application/json">/*__DATOS__*/</script>
+<script>
+"use strict";
+if (typeof Plotly === "undefined") {
+  document.querySelector("main").insertAdjacentHTML("afterbegin",
+    '<div class="card" style="border-color:#B42318;color:#B42318"><b>No se pudo cargar la librería de gráficos (Plotly).</b> Vuelva a generar este archivo con su script de construcción, que incluye la librería dentro del HTML.</div>');
+  throw new Error("Plotly no está disponible");
+}
+const DATA = JSON.parse(document.getElementById("datos").textContent);
+const P = DATA.paises;
+const A = DATA.analisis;
+
+// ---------- Paleta (validada para daltonismo; cada continente lleva además su forma) ----------
+const CONT = {
+  "África":  {c:"#eda100", s:"triangle-up"},
+  "América": {c:"#2a78d6", s:"circle"},
+  "Asia":    {c:"#e87ba4", s:"diamond"},
+  "Europa":  {c:"#008300", s:"square"},
+  "Oceanía": {c:"#1baf7a", s:"cross"}
+};
+const ORDEN_CONT = Object.keys(CONT);
+const AZUL = "#002244", CELESTE = "#009FDA", GRIS_T = "#6B7785", TINTA = "#1B2733";
+const INGRESO = {"Low income":"Bajo","Lower middle income":"Medio-bajo","Upper middle income":"Medio-alto","High income":"Alto"};
+
+// ---------- Estado del filtro (toda la página lo comparte) ----------
+const estado = {cont:"", tam:"", ing:"", pais:""};
+
+// ---------- Utilidades numéricas ----------
+const nn = v => v !== null && v !== undefined && !Number.isNaN(v);
+const suma = (a,f) => a.reduce((s,d)=>s+(f(d)||0),0);
+function pond(a,k){ const b=a.filter(d=>nn(d[k])); const w=suma(b,d=>d.Poblacion); return w? suma(b,d=>d[k]*d.Poblacion)/w : null; }
+function mediana(a,k){ const v=a.map(d=>d[k]).filter(nn).sort((x,y)=>x-y); if(!v.length) return null; const m=Math.floor(v.length/2); return v.length%2? v[m] : (v[m-1]+v[m])/2; }
+function rangos(v){ const idx=v.map((x,i)=>[x,i]).sort((a,b)=>a[0]-b[0]); const r=new Array(v.length); let i=0;
+  while(i<idx.length){ let j=i; while(j+1<idx.length && idx[j+1][0]===idx[i][0]) j++; const prom=(i+j)/2+1; for(let k=i;k<=j;k++) r[idx[k][1]]=prom; i=j+1; } return r; }
+function spearman(a,kx,ky){ const b=a.filter(d=>nn(d[kx])&&nn(d[ky])); if(b.length<5) return {r:null,n:b.length};
+  const rx=rangos(b.map(d=>d[kx])), ry=rangos(b.map(d=>d[ky])); const n=b.length, mx=suma(rx,x=>x)/n, my=suma(ry,x=>x)/n;
+  let sxy=0,sx=0,sy=0; for(let i=0;i<n;i++){ sxy+=(rx[i]-mx)*(ry[i]-my); sx+=(rx[i]-mx)**2; sy+=(ry[i]-my)**2; }
+  return {r: sxy/Math.sqrt(sx*sy), n}; }
+const fmt = (v,d=1) => nn(v)? v.toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d}) : "s.d.";
+const fmtUSD = v => nn(v)? "USD " + Math.round(v).toLocaleString("es-CO") : "s.d.";
+function fmtPob(v){ if(!nn(v)) return "s.d."; if(v>=1e9) return fmt(v/1e9,2)+" mil M"; if(v>=1e6) return fmt(v/1e6,1)+" M"; return Math.round(v).toLocaleString("es-CO"); }
+function fuerza(r){ if(!nn(r)) return "sin datos suficientes"; const a=Math.abs(r); const s=a>=.7?"fuerte":a>=.4?"moderada":a>=.2?"débil":"nula"; return `${s} ${r<0?"negativa":"positiva"}`; }
+
+const MEDIA_MUNDIAL = pond(P,"EsperanzaVida");
+
+function filtrados(){
+  return P.filter(d => (!estado.cont || d.Continente===estado.cont)
+                    && (!estado.tam  || d.TamanoPais===estado.tam)
+                    && (!estado.ing  || d.GrupoIngresoBM===estado.ing));
+}
+
+// ---------- Layout base de Plotly ----------
+const CFG = {displayModeBar:false, responsive:true, locale:"es"};
+function base(extra){ return Object.assign({
+  margin:{l:52,r:14,t:10,b:44}, paper_bgcolor:"#fff", plot_bgcolor:"#fff",
+  font:{family:"Open Sans, Arial, sans-serif", size:12, color:TINTA},
+  hoverlabel:{bgcolor:"#fff", bordercolor:"#D5DBE3", font:{color:TINTA, size:12}},
+  showlegend:false
+}, extra); }
+const EJE = {gridcolor:"#EEF1F5", zeroline:false, linecolor:"#D5DBE3", tickfont:{color:GRIS_T}, title:{font:{size:12,color:"#4A5866"}}};
+const eje = o => Object.assign({}, EJE, o, {title:Object.assign({}, EJE.title, o && o.title)});
+
+// ---------- Filtros ----------
+function construirFiltros(){
+  const cc = document.getElementById("chipsCont");
+  cc.innerHTML = `<button class="chip" data-c="" aria-pressed="true">Todos</button>` +
+    ORDEN_CONT.map(c=>`<button class="chip" data-c="${c}" aria-pressed="false"><i style="background:${CONT[c].c}"></i>${c}</button>`).join("");
+  cc.addEventListener("click", e=>{ const b=e.target.closest(".chip"); if(!b) return; estado.cont=b.dataset.c; estado.pais=""; render(); });
+  const si = document.getElementById("selIng");
+  Object.entries(INGRESO).forEach(([k,v])=>si.insertAdjacentHTML("beforeend",`<option value="${k}">${v}</option>`));
+  si.onchange = e=>{ estado.ing=e.target.value; estado.pais=""; render(); };
+  document.getElementById("selTam").onchange = e=>{ estado.tam=e.target.value; estado.pais=""; render(); };
+  document.getElementById("selMapa").onchange = ()=>renderMapa(filtrados());
+  document.getElementById("btnReset").onclick = ()=>{ Object.assign(estado,{cont:"",tam:"",ing:"",pais:""});
+    document.getElementById("selTam").value=""; si.value=""; render(); };
+  document.getElementById("leyendaCont").innerHTML = ORDEN_CONT.map(c=>`<span>${simboloSVG(c)}${c}</span>`).join("");
+}
+function simboloSVG(c){ const col=CONT[c].c, s=CONT[c].s;
+  const forma = s==="circle"?`<circle cx="6" cy="6" r="5" fill="${col}"/>` : s==="square"?`<rect x="1" y="1" width="10" height="10" fill="${col}"/>`
+    : s==="diamond"?`<path d="M6 0L12 6L6 12L0 6Z" fill="${col}"/>` : s==="triangle-up"?`<path d="M6 0L12 11H0Z" fill="${col}"/>`
+    : `<path d="M4 0h4v4h4v4H8v4H4V8H0V4h4z" fill="${col}"/>`;
+  return `<svg viewBox="0 0 12 12" aria-hidden="true">${forma}</svg>`; }
+
+// ---------- KPI ----------
+function renderKPI(d){
+  const pob = suma(d,x=>x.Poblacion), n=d.length;
+  const ev = pond(d,"EsperanzaVida"), mi = pond(d,"MortalidadInfantil");
+  const evs = d.map(x=>x.EsperanzaVida); const brecha = n? Math.max(...evs)-Math.min(...evs) : null;
+  const rL = pob? 100*suma(d.filter(x=>x.EsperanzaVida<65),x=>x.Poblacion)/pob : null;
+  const rI = pob? 100*suma(d.filter(x=>x.MortalidadInfantil>50),x=>x.Poblacion)/pob : null;
+  const conAgua = d.filter(x=>nn(x.AguaPotable)).length;
+  const dif = (v,ref,inv) => { if(!nn(v)||!estado.cont&&!estado.tam&&!estado.ing) return "";
+    const x=v-ref; const bueno = inv? x<0 : x>0; return ` · <span class="${bueno?"up":"down"}">${x>0?"+":""}${fmt(x,1)} vs mundo</span>`; };
+  const K = [
+    ["K1 Población total", fmtPob(pob), `${fmt(100*pob/suma(P,x=>x.Poblacion),1)} % del total mundial`, ""],
+    ["K2 Número de países", n, `de 216 países analizados`, ""],
+    ["K3 Esperanza de vida", fmt(ev,1)+" años", "ponderada por población"+dif(ev,MEDIA_MUNDIAL,false), "salud"],
+    ["K4 Mortalidad infantil", fmt(mi,1), "por 1.000 nacidos vivos"+dif(mi,pond(P,"MortalidadInfantil"),true), "salud"],
+    ["K5 Brecha de longevidad", fmt(brecha,1)+" años", "máx. − mín. en la selección", "riesgo"],
+    ["K6 Pob. riesgo longevidad", fmt(rL,1)+" %", "vive en países con EV < 65 años", "riesgo"],
+    ["K7 Pob. riesgo infantil", fmt(rI,1)+" %", "países con mortalidad > 50 por mil", "riesgo"],
+    ["K8 PIB per cápita", fmtUSD(mediana(d,"PIBPerCapita")), "mediana de países", ""],
+    ["K9 Gasto salud per cápita", fmtUSD(mediana(d,"GastoSaludPerCapita")), "mediana de países", "salud"],
+    ["K10 Matrícula secundaria", fmt(pond(d,"MatriculaSecundaria"),1)+" %", "tasa bruta ponderada (puede superar 100)", ""],
+    ["K11 Agua potable segura", fmt(mediana(d,"AguaPotable"),1)+" %", `mediana · ${conAgua} de ${n} países con dato`, "salud"],
+    ["K12 Gasto salud / PIB", fmt(mediana(d,"GastoSaludPctPIB"),1)+" %", "mediana · esfuerzo en salud", "salud"],
+  ];
+  document.getElementById("kpis").innerHTML = K.map(([t,v,s,c])=>`<div class="kpi ${c}"><div class="n" title="${t}">${t}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+// ---------- Mapa ----------
+const META_MAPA = {
+  IndicePrioridad:{t:"Índice de prioridad de financiamiento", s:"0 = menor necesidad · 100 = mayor necesidad", f:v=>fmt(v,1), alto_malo:true},
+  EsperanzaVida:{t:"Esperanza de vida al nacer", s:"Años", f:v=>fmt(v,1)+" años", alto_malo:false},
+  MortalidadInfantil:{t:"Mortalidad infantil", s:"Muertes por 1.000 nacidos vivos", f:v=>fmt(v,1), alto_malo:true},
+  PIBPerCapita:{t:"PIB per cápita", s:"USD corrientes · escala logarítmica de color", f:fmtUSD, alto_malo:false, log:true},
+  GastoSaludPerCapita:{t:"Gasto en salud per cápita", s:"USD corrientes · escala logarítmica de color", f:fmtUSD, alto_malo:false, log:true},
+  AguaPotable:{t:"Agua potable gestionada de forma segura", s:"% de la población · gris = sin dato", f:v=>fmt(v,1)+" %", alto_malo:false},
+  MatriculaSecundaria:{t:"Matrícula secundaria (bruta)", s:"% · gris = sin dato", f:v=>fmt(v,1)+" %", alto_malo:false},
+};
+// Secuencial de un solo tono (claro -> oscuro): oscuro = situación que pide atención
+const SEQ = [[0,"#E6F1FA"],[.25,"#A9CDEB"],[.5,"#5B9BD5"],[.75,"#1F5F9E"],[1,"#002244"]];
+function renderMapa(d){
+  const k = document.getElementById("selMapa").value, m = META_MAPA[k];
+  document.getElementById("tMapa").textContent = m.t; document.getElementById("sMapa").textContent = m.s;
+  const sel = new Set(d.map(x=>x.CodigoPais));
+  const con = P.filter(x=>sel.has(x.CodigoPais) && nn(x[k]));
+  const z = con.map(x=> m.log? Math.log10(x[k]) : x[k]);
+  const zmin = Math.min(...P.filter(x=>nn(x[k])).map(x=>m.log?Math.log10(x[k]):x[k]));
+  const zmax = Math.max(...P.filter(x=>nn(x[k])).map(x=>m.log?Math.log10(x[k]):x[k]));
+  const escala = m.alto_malo? SEQ : SEQ.map(([p,c],i)=>[p,SEQ[SEQ.length-1-i][1]]);
+  const fondo = {type:"choropleth", locations:P.map(x=>x.CodigoPais), z:P.map(()=>0), locationmode:"ISO-3",
+    colorscale:[[0,"#E3E7ED"],[1,"#E3E7ED"]], showscale:false, hoverinfo:"skip", marker:{line:{color:"#fff",width:.5}}};
+  const capa = {type:"choropleth", locations:con.map(x=>x.CodigoPais), z, locationmode:"ISO-3", zmin, zmax,
+    colorscale:escala, marker:{line:{color:"#fff",width:.6}},
+    customdata:con.map(x=>[x.Pais, m.f(x[k]), x.Continente, x.PrioridadFinanciamiento]),
+    hovertemplate:"<b>%{customdata[0]}</b><br>"+m.t+": %{customdata[1]}<br>%{customdata[2]} · Prioridad %{customdata[3]}<extra></extra>",
+    colorbar:{thickness:10, len:.7, outlinewidth:0, tickfont:{size:11,color:GRIS_T},
+      tickvals: m.log? [2,3,4,5] : undefined, ticktext: m.log? ["100","1 mil","10 mil","100 mil"] : undefined}};
+  const capas=[fondo,capa];
+  if(estado.pais){ const p=P.find(x=>x.CodigoPais===estado.pais);
+    if(p) capas.push({type:"scattergeo", locations:[p.CodigoPais], locationmode:"ISO-3", mode:"markers",
+      marker:{size:14,color:"rgba(0,0,0,0)",line:{color:CELESTE,width:3}}, hoverinfo:"skip"}); }
+  const geo = {showframe:false, showcoastlines:false, projection:{type:"natural earth"}, bgcolor:"#fff",
+    showcountries:false, lataxis:{range:[-58,85]}};
+  if(estado.cont){ const reg={"África":{lon:[-25,60],lat:[-38,40]},"América":{lon:[-170,-30],lat:[-58,75]},"Asia":{lon:[25,150],lat:[-12,62]},"Europa":{lon:[-28,50],lat:[33,72]},"Oceanía":{lon:[105,190],lat:[-50,20]}}[estado.cont];
+    geo.lonaxis={range:reg.lon}; geo.lataxis={range:reg.lat}; }
+  Plotly.react("gMapa", capas, base({margin:{l:0,r:0,t:0,b:0}, geo}), CFG);
+}
+
+// ---------- Tabla de prioridad y ficha ----------
+function renderPrioridad(d){
+  const top = [...d].sort((a,b)=>b.IndicePrioridad-a.IndicePrioridad).slice(0,12);
+  document.getElementById("tPrioridad").innerHTML = `<thead><tr><th>#</th><th>País</th><th class="num">Índice</th><th>Prioridad</th></tr></thead><tbody>` +
+    top.map((x,i)=>`<tr data-p="${x.CodigoPais}" class="${x.CodigoPais===estado.pais?"sel":""}" style="cursor:pointer"><td>${i+1}</td><td>${x.Pais}</td><td class="num">${fmt(x.IndicePrioridad,1)}</td><td><span class="pill ${x.PrioridadFinanciamiento}">${x.PrioridadFinanciamiento}</span></td></tr>`).join("") + "</tbody>";
+}
+function renderFicha(){
+  const el = document.getElementById("fichaPais"); const p = P.find(x=>x.CodigoPais===estado.pais);
+  if(!p){ el.innerHTML = "Selecciona un país en el mapa o en las tablas para ver su ficha."; return; }
+  el.innerHTML = `<b>${p.Pais}</b> · ${p.Continente} · ${p.TamanoPais} · ingreso ${INGRESO[p.GrupoIngresoBM]||"s.d."}<br>
+    Esperanza de vida <b>${fmt(p.EsperanzaVida,1)}</b> años (${p.BrechaEV_vsMundo>0?"+":""}${fmt(p.BrechaEV_vsMundo,1)} vs mundo) ·
+    Mortalidad infantil <b>${fmt(p.MortalidadInfantil,1)}</b> ·
+    PIB p/c <b>${fmtUSD(p.PIBPerCapita)}</b> · Gasto salud p/c <b>${fmtUSD(p.GastoSaludPerCapita)}</b> ·
+    Agua segura <b>${fmt(p.AguaPotable,1)}${nn(p.AguaPotable)?" %":""}</b> · Matrícula <b>${fmt(p.MatriculaSecundaria,1)}${nn(p.MatriculaSecundaria)?" %":""}</b><br>
+    Índice de prioridad <b>${fmt(p.IndicePrioridad,1)}</b> <span class="pill ${p.PrioridadFinanciamiento}">${p.PrioridadFinanciamiento}</span> (${p.ComponentesIndice}/5 componentes con dato)`;
+}
+
+// ---------- P1 ----------
+function renderP1(dF){
+  // Base: todos los países que cumplen tamaño/ingreso (el continente se resalta, no se oculta)
+  const d = P.filter(x=>(!estado.tam||x.TamanoPais===estado.tam)&&(!estado.ing||x.GrupoIngresoBM===estado.ing));
+  const pobT = suma(d,x=>x.Poblacion), nT = d.length;
+  const filas = ORDEN_CONT.map(c=>{ const g=d.filter(x=>x.Continente===c); return {c, pob:100*suma(g,x=>x.Poblacion)/(pobT||1), n:g.length, pn:100*g.length/(nT||1), abs:suma(g,x=>x.Poblacion)}; })
+    .sort((a,b)=>b.pob-a.pob);
+  const op = filas.map(f=> !estado.cont || f.c===estado.cont ? 1 : .3);
+  const t1 = {type:"bar", name:"% de la población", x:filas.map(f=>f.c), y:filas.map(f=>f.pob), marker:{color:AZUL, opacity:op},
+    text:filas.map(f=>fmt(f.pob,0)+"%"), textposition:"outside", textfont:{size:11,color:"#4A5866"}, cliponaxis:false,
+    customdata:filas.map(f=>[fmtPob(f.abs)]), hovertemplate:"<b>%{x}</b><br>%{y:.1f} % de la población (%{customdata[0]})<extra></extra>"};
+  const t2 = {type:"bar", name:"% de los países", x:filas.map(f=>f.c), y:filas.map(f=>f.pn), marker:{color:CELESTE, opacity:op},
+    text:filas.map(f=>f.n+" países"), textposition:"outside", textfont:{size:11,color:"#4A5866"}, cliponaxis:false,
+    hovertemplate:"<b>%{x}</b><br>%{y:.1f} % de los países<extra></extra>"};
+  Plotly.react("gP1",[t1,t2], base({barmode:"group", bargap:.28, bargroupgap:.08, showlegend:true,
+    legend:{orientation:"h", y:1.1, x:0, font:{size:11}}, margin:{l:44,r:8,t:28,b:36},
+    yaxis:eje({title:{text:"% del total"}, ticksuffix:"%", range:[0, Math.max(...filas.map(f=>Math.max(f.pob,f.pn)))*1.18]}), xaxis:eje({showgrid:false})}), CFG);
+  const top = filas[0], masP = [...filas].sort((a,b)=>b.n-a.n)[0];
+  document.getElementById("iP1").innerHTML = `<b>${top.c}</b> concentra el <b>${fmt(top.pob,1)} %</b> de la población con el ${fmt(top.pn,1)} % de los países; <b>${masP.c}</b> tiene más países (${masP.n}).`;
+}
+
+// ---------- P2 ----------
+function renderP2(d){
+  const ord = [...d].sort((a,b)=>b.EsperanzaVida-a.EsperanzaVida);
+  let sel = ord.length<=10 ? ord : [...ord.slice(0,5), ...ord.slice(-5)];
+  sel = [...sel].sort((a,b)=>a.EsperanzaVida-b.EsperanzaVida);
+  const y = sel.map(x=>x.Pais), xv = sel.map(x=>x.EsperanzaVida-MEDIA_MUNDIAL);
+  // Divergente: dos tonos, el signo define el color (punto medio = media mundial)
+  const t = {type:"bar", orientation:"h", y, x:xv, marker:{color:xv.map(v=>v>=0?"#1F5F9E":"#C4320A")},
+    text:sel.map(x=>fmt(x.EsperanzaVida,1)), textposition:"outside", textfont:{size:11,color:"#4A5866"}, cliponaxis:false,
+    customdata:sel.map(x=>[x.Continente, fmt(x.EsperanzaVida,1)]),
+    hovertemplate:"<b>%{y}</b> (%{customdata[0]})<br>%{customdata[1]} años · %{x:+.1f} vs media mundial<extra></extra>"};
+  const lim = Math.max(...xv.map(Math.abs), 5)*1.25;
+  Plotly.react("gP2",[t], base({margin:{l:120,r:20,t:6,b:40}, bargap:.3,
+    xaxis:eje({title:{text:"Años vs media mundial"}, range:[-lim,lim], zeroline:true, zerolinecolor:"#9AA5B1", zerolinewidth:1.5}),
+    yaxis:eje({showgrid:false, automargin:true})}), CFG);
+  document.getElementById("mediaMundial").textContent = fmt(MEDIA_MUNDIAL,1);
+  if(ord.length){ const a=ord[0], z=ord[ord.length-1];
+    document.getElementById("iP2").innerHTML = `Entre <b>${a.Pais}</b> (${fmt(a.EsperanzaVida,1)}) y <b>${z.Pais}</b> (${fmt(z.EsperanzaVida,1)}) hay <b>${fmt(a.EsperanzaVida-z.EsperanzaVida,1)} años</b> de diferencia.`; }
+}
+
+// ---------- P3 ----------
+function renderP3(d){
+  const seg = ["Pequeño","Mediano","Grande"];
+  const g = seg.map(s=>d.filter(x=>x.TamanoPais===s));
+  const ev = g.map(a=>mediana(a,"EsperanzaVida")), mi = g.map(a=>mediana(a,"MortalidadInfantil"));
+  const etiq = seg.map((s,i)=>`${s}<br><span style="font-size:10px;color:${GRIS_T}">${g[i].length} países</span>`);
+  // Dos paneles con su propio eje (no doble eje): EV arriba, mortalidad abajo
+  const t1 = {type:"bar", x:etiq, y:ev, xaxis:"x", yaxis:"y", marker:{color:"#1F5F9E"}, text:ev.map(v=>fmt(v,1)), textposition:"outside", cliponaxis:false,
+    textfont:{size:11,color:"#4A5866"}, hovertemplate:"%{x}<br>Esperanza de vida mediana: %{y:.1f} años<extra></extra>"};
+  const t2 = {type:"bar", x:etiq, y:mi, xaxis:"x2", yaxis:"y2", marker:{color:"#C4320A"}, text:mi.map(v=>fmt(v,1)), textposition:"outside", cliponaxis:false,
+    textfont:{size:11,color:"#4A5866"}, hovertemplate:"%{x}<br>Mortalidad infantil mediana: %{y:.1f} por mil<extra></extra>"};
+  const evMax = Math.max(...ev.filter(nn), 80), miMax = Math.max(...mi.filter(nn), 20);
+  Plotly.react("gP3",[t1,t2], base({grid:{rows:1, columns:2, pattern:"independent"}, margin:{l:36,r:8,t:26,b:48}, bargap:.35,
+    xaxis:eje({showgrid:false, tickfont:{size:11}}), xaxis2:eje({showgrid:false, tickfont:{size:11}}),
+    yaxis:eje({range:[0,evMax*1.15]}), yaxis2:eje({range:[0,miMax*1.2]}),
+    annotations:[{text:"<b>Esperanza de vida</b> (años)", x:0, xref:"paper", y:1.08, yref:"paper", showarrow:false, xanchor:"left", font:{size:11}},
+                 {text:"<b>Mortalidad infantil</b> (por mil)", x:.55, xref:"paper", y:1.08, yref:"paper", showarrow:false, xanchor:"left", font:{size:11}}]}), CFG);
+  const valido = ev.every(nn) && mi.every(nn);
+  document.getElementById("iP3").innerHTML = valido
+    ? (ev[2] > ev[0] && mi[2] < mi[0] ? `En esta selección los países <b>grandes</b> sí muestran mejor salud.` :
+       `<b>No:</b> los países pequeños tienen mediana de ${fmt(ev[0],1)} años y ${fmt(mi[0],1)} por mil, frente a ${fmt(ev[2],1)} años y ${fmt(mi[2],1)} por mil de los grandes. El tamaño no garantiza mejor salud.`)
+    : "La selección no tiene países en los tres segmentos.";
+}
+
+// ---------- P4-P6: dispersión ----------
+function burbujas(id, d, kx, ky, opt){
+  const tr = ORDEN_CONT.map(c=>{ const g=d.filter(x=>x.Continente===c && nn(x[kx]) && nn(x[ky]));
+    return {type:"scatter", mode:"markers", name:c, x:g.map(x=>x[kx]), y:g.map(x=>x[ky]),
+      marker:{color:CONT[c].c, symbol:CONT[c].s, size:g.map(x=>Math.max(7, Math.min(38, Math.sqrt(x.Poblacion)/650))),
+        opacity:.82, line:{color:"#fff", width:1.2}},
+      customdata:g.map(x=>[x.Pais, x.CodigoPais, opt.fx(x[kx]), opt.fy(x[ky]), fmtPob(x.Poblacion)]),
+      hovertemplate:`<b>%{customdata[0]}</b> (${c})<br>${opt.nx}: %{customdata[2]}<br>${opt.ny}: %{customdata[3]}<br>Población: %{customdata[4]}<extra></extra>`}; });
+  if(estado.pais){ const p=d.find(x=>x.CodigoPais===estado.pais && nn(x[kx]) && nn(x[ky]));
+    if(p) tr.push({type:"scatter", mode:"markers+text", x:[p[kx]], y:[p[ky]], text:[p.Pais], textposition:"top center",
+      textfont:{size:11,color:TINTA}, marker:{size:22, color:"rgba(0,0,0,0)", line:{color:TINTA,width:2}}, hoverinfo:"skip"}); }
+  Plotly.react(id, tr, base({margin:{l:52,r:10,t:8,b:46},
+    xaxis:eje({title:{text:opt.tx}, type:opt.logx?"log":"linear"}), yaxis:eje({title:{text:opt.ty}})}), CFG);
+  const s = spearman(d,kx,ky);
+  return s;
+}
+function renderFactores(d){
+  const s4 = burbujas("gP4", d, "PIBPerCapita", "EsperanzaVida", {logx:true, tx:"PIB per cápita (USD, escala log)", ty:"Esperanza de vida (años)",
+    nx:"PIB p/c", ny:"Esperanza de vida", fx:fmtUSD, fy:v=>fmt(v,1)+" años"});
+  const s5 = burbujas("gP5", d, "GastoSaludPerCapita", "MortalidadInfantil", {logx:true, tx:"Gasto en salud per cápita (USD, escala log)", ty:"Mortalidad infantil (por mil)",
+    nx:"Gasto salud p/c", ny:"Mortalidad infantil", fx:fmtUSD, fy:v=>fmt(v,1)});
+  const s6 = burbujas("gP6", d, "AguaPotable", "EsperanzaVida", {logx:false, tx:"Agua potable gestionada de forma segura (%)", ty:"Esperanza de vida (años)",
+    nx:"Agua segura", ny:"Esperanza de vida", fx:v=>fmt(v,1)+" %", fy:v=>fmt(v,1)+" años"});
+  const s6b = spearman(d,"MatriculaSecundaria","EsperanzaVida");
+  const txt = (s,n)=> nn(s.r) ? `Spearman = <b>${fmt(s.r,2)}</b> (${fuerza(s.r)}) · ${s.n} países con dato` : `Pocos países con dato (${s.n})`;
+  document.getElementById("sP4").innerHTML = txt(s4); document.getElementById("sP5").innerHTML = txt(s5);
+  document.getElementById("sP6").innerHTML = txt(s6) + (nn(s6b.r)? ` · Matrícula vs EV = <b>${fmt(s6b.r,2)}</b>` : "");
+  const cc = A.correlaciones_clave; const par = (x,y)=>cc.find(r=>r["Variable X"]===x && r["Variable Y"]===y);
+  const p5=par("Gasto salud p/c","Mortalidad infantil"), p6a=par("Agua potable","Esperanza de vida"), p6b=par("Matrícula secundaria","Esperanza de vida");
+  document.getElementById("iP4").innerHTML = `<b>Sí.</b> A mayor ingreso, mayor longevidad; la relación se aplana por encima de ~USD 20 mil: el ingreso ayuda mucho al principio.`;
+  document.getElementById("iP5").innerHTML = `<b>Sí.</b> Aun descontando el efecto del PIB, la relación se mantiene (parcial = <b>${fmt(p5["Parcial (controla PIB)"],2)}</b>, mundial): invertir en salud se asocia a menos muertes infantiles.`;
+  document.getElementById("iP6").innerHTML = `El <b>agua</b> pesa más que la educación: descontando el ingreso, agua = <b>${fmt(p6a["Parcial (controla PIB)"],2)}</b> y matrícula = <b>${fmt(p6b["Parcial (controla PIB)"],2)}</b> (mundial).`;
+}
+
+// ---------- Correlaciones (recalculadas) ----------
+const VARS = [["EsperanzaVida","Esperanza de vida"],["MortalidadInfantil","Mortalidad infantil"],["Poblacion","Población"],["PIBPerCapita","PIB per cápita"],
+  ["GastoSaludPerCapita","Gasto salud p/c"],["GastoSaludPctPIB","Gasto salud % PIB"],["MatriculaSecundaria","Matrícula secund."],["AguaPotable","Agua potable"]];
+function renderCorr(d){
+  const z = VARS.map(([a])=>VARS.map(([b])=> a===b?1: spearman(d,a,b).r));
+  const lab = VARS.map(v=>v[1]);
+  const t = {type:"heatmap", z, x:lab, y:lab, zmin:-1, zmax:1, xgap:2, ygap:2,
+    colorscale:[[0,"#B42318"],[.25,"#F4A28C"],[.5,"#EEF1F5"],[.75,"#8DB8E3"],[1,"#002244"]],
+    text:z.map(r=>r.map(v=>nn(v)?fmt(v,2):"")), texttemplate:"%{text}", textfont:{size:11},
+    hovertemplate:"%{y} vs %{x}<br>Spearman: %{z:.2f}<extra></extra>", colorbar:{thickness:10, outlinewidth:0, tickfont:{size:11,color:GRIS_T}}};
+  Plotly.react("gCorr",[t], base({margin:{l:120,r:10,t:6,b:100}, xaxis:{tickangle:-35, tickfont:{size:11}}, yaxis:{autorange:"reversed", tickfont:{size:11}}}), CFG);
+}
+
+// ---------- Reglas ----------
+function renderReglas(){
+  const lindo = s => s.split(" + ").map(t=>{ const [k,v]=t.split("="); const n={EV:"Esperanza de vida",MortInf:"Mortalidad infantil",GastoSalud:"Gasto en salud",Agua:"Agua potable",Matrícula:"Matrícula",Ingreso:"Ingreso",Continente:"",Tamaño:"Tamaño"}[k];
+    return n===""? v : `${n} ${v.toLowerCase()}`; }).join(" + ");
+  const maxL = Math.max(...A.reglas.map(r=>r.Lift));
+  const resaltar = estado.cont;
+  const filas = [...A.reglas].sort((a,b)=> (resaltar? (b.Antecedente.includes(resaltar)-a.Antecedente.includes(resaltar)) : 0) || b.Lift-a.Lift);
+  document.getElementById("tReglas").innerHTML = `<thead><tr><th>Si el país tiene…</th><th>…entonces</th><th class="num">Países</th><th class="num">Confianza</th><th>Lift</th></tr></thead><tbody>` +
+    filas.map(r=>`<tr class="${resaltar && r.Antecedente.includes(resaltar)?"sel":""}"><td class="regla">${lindo(r.Antecedente)}</td><td class="regla"><b>${lindo(r.Consecuente)}</b></td>
+      <td class="num">${r.Paises}</td><td class="num">${fmt(100*r.Confianza,0)} %</td>
+      <td style="min-width:90px">${fmt(r.Lift,2)}<div class="barra-lift" style="width:${100*r.Lift/maxL}%"></div></td></tr>`).join("") + "</tbody>";
+}
+
+// ---------- Tabla de datos ----------
+function renderTabla(d){
+  const o = [...d].sort((a,b)=>b.IndicePrioridad-a.IndicePrioridad);
+  document.getElementById("tDatos").innerHTML = `<thead><tr><th>País</th><th>Continente</th><th>Tamaño</th><th class="num">Población</th><th class="num">Esp. vida</th><th class="num">Mort. inf.</th><th class="num">PIB p/c</th><th class="num">Gasto salud p/c</th><th class="num">Gasto % PIB</th><th class="num">Matrícula</th><th class="num">Agua</th><th class="num">Índice</th><th>Prioridad</th></tr></thead><tbody>` +
+    o.map(x=>`<tr data-p="${x.CodigoPais}" class="${x.CodigoPais===estado.pais?"sel":""}" style="cursor:pointer"><td>${x.Pais}</td><td>${x.Continente}</td><td>${x.TamanoPais}</td><td class="num">${fmtPob(x.Poblacion)}</td>
+      <td class="num">${fmt(x.EsperanzaVida,1)}</td><td class="num">${fmt(x.MortalidadInfantil,1)}</td><td class="num">${fmtUSD(x.PIBPerCapita).replace("USD ","")}</td>
+      <td class="num">${fmtUSD(x.GastoSaludPerCapita).replace("USD ","")}</td><td class="num">${fmt(x.GastoSaludPctPIB,1)}</td><td class="num">${fmt(x.MatriculaSecundaria,1)}</td>
+      <td class="num">${fmt(x.AguaPotable,1)}</td><td class="num">${fmt(x.IndicePrioridad,1)}</td><td><span class="pill ${x.PrioridadFinanciamiento}">${x.PrioridadFinanciamiento}</span></td></tr>`).join("") + "</tbody>";
+}
+
+// ---------- Orquestación ----------
+function render(){
+  const d = filtrados();
+  document.querySelectorAll("#chipsCont .chip").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.c===estado.cont)));
+  const partes = [estado.cont, estado.tam, estado.ing && "Ingreso "+INGRESO[estado.ing].toLowerCase()].filter(Boolean);
+  document.getElementById("estado").innerHTML = `<b>${d.length}</b> países · ${partes.length? partes.join(" · ") : "Mundo"}`;
+  renderKPI(d); renderMapa(d); renderPrioridad(d); renderFicha(); renderP1(d); renderP2(d); renderP3(d); renderFactores(d); renderCorr(d); renderReglas(); renderTabla(d);
+}
+function seleccionarPais(cod){ estado.pais = (estado.pais===cod? "" : cod); render(); }
+
+construirFiltros();
+document.getElementById("fechaCorte").textContent = `corte ${DATA.meta.anio_corte}`;
+render();
+
+// Interacciones cruzadas: clic en gráficos -> filtra o selecciona
+document.getElementById("gP1").on("plotly_click", e=>{ const c=e.points[0].x; estado.cont = estado.cont===c? "" : c; estado.pais=""; render(); });
+document.getElementById("gMapa").on("plotly_click", e=>{ const pt=e.points[0]; if(pt && pt.location) seleccionarPais(pt.location); });
+["gP4","gP5","gP6"].forEach(id=>document.getElementById(id).on("plotly_click", e=>{ const cd=e.points[0].customdata; if(cd) seleccionarPais(cd[1]); }));
+document.getElementById("gP2").on("plotly_click", e=>{ const p=P.find(x=>x.Pais===e.points[0].y); if(p) seleccionarPais(p.CodigoPais); });
+["tPrioridad","tDatos"].forEach(id=>document.getElementById(id).addEventListener("click", e=>{ const tr=e.target.closest("tr[data-p]"); if(tr) seleccionarPais(tr.dataset.p); }));
+</script>
+</body>
+</html>
